@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Kawasan Bencana Tanah Longsor</title>
+    <link rel="stylesheet" href="library/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script src="library/leaflet/leaflet.js"></script>
+    <script src="library/leaflet-providers-master/leaflet-providers.js"></script>
+    <script src="library/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="map">
+        <script>
+            var map = L.map('map').setView([-7.766461492587364, 110.49234224872865], 14);
+
+            var baseLayers = {
+                'Esri WorldImagery': L.tileLayer.provider('Esri.WorldImagery').addTo(map),
+                'Esri WorldTopoMap': L.tileLayer.provider('Esri.WorldTopoMap'),
+                'OSM Default': L.tileLayer.provider('OpenStreetMap.DE'),
+                'OSM France': L.tileLayer.provider('OpenStreetMap.France')
+            };
+
+
+            /* Memanggil Layer Bahaya Longsor */
+            var RawanBencanaLongsor = L.geoJson(null, {
+                style: function(feature) {
+                    return {
+                        color: "black",
+                        fillColor: BahayaLongsor[feature.properties.Kelas_Bahaya],
+                        weight: 0.3,
+                        opacity: 0,
+                        fillOpacity: 0.7
+                    };
+                },
+                onEachFeature: function( feature, layer ){
+                    layer.bindPopup(
+                        "Bahaya Longsor : " + "<left>" + feature.properties.Kelas_Bahaya + "</left>" + "<br>" +
+                        "Luas :" + "<left>" + feature.properties.Shape_Area + "</left>" + " m2"
+                        ).addTo(map)
+                }
+            });
+            $.getJSON("data/Rawan_Longsor_Geo11.json", function(data) {
+                RawanBencanaLongsor.addData(data);
+            });
+
+			/* Merubah Tampilan Warna Berdasar Atribut Klas longsor */
+			var BahayaLongsor = {
+				"Aman":"#eccbac",
+				"Rawan":"#ff7f50",
+				"Sangat Rawan":"#ff0000"
+			};
+
+            var mapLayers = {
+                'Bahaya Longsor': RawanBencanaLongsor,
+            };
+
+            L.control.layers(baseLayers, mapLayers).addTo(map);
+        </script>
+    </div>
+</body>
+
+</html>
